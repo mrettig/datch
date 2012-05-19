@@ -37,11 +37,9 @@ class DatchParser
     @dir = dir
 
     Dir.glob("#{dir}/*.rb") { |f|
-      puts f
       @entries << DatchFile.new(f, self)
     }
     @entries.sort!
-    puts @entries.inspect
   end
 
   def write_change_sql(output)
@@ -52,10 +50,10 @@ class DatchParser
     changes=[]
     @entries.each { |e| changes << cb.call(e) }
     tmp_body=File.new("#@dir/changes.erb").read
-    template = ERB.new tmp_body, nil, "%"
+    template = ERB.new tmp_body
     output = template.result(binding)
     File.open(file, 'w') { |f|
-      f.puts output
+      f.write output
     }
   end
 
