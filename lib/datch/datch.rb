@@ -1,3 +1,4 @@
+require 'erb'
 dir=ARGV.shift
 output=ARGV.shift
 
@@ -6,7 +7,6 @@ class DatchFile
   include Comparable
 
   def initialize(f, context)
-    load f
     parts = File.basename(f).split(".")
     @versions = []
     @name = []
@@ -17,7 +17,12 @@ class DatchFile
         @name << p
       end
     }
-    @patch = datch(context)
+    @patch = DatchFile::load_file(f, context)
+  end
+
+  def self.load_file(f, context)
+    load f
+    datch(context)
   end
 
   def <=>(other)
@@ -29,8 +34,8 @@ end
 class DatchParser
   def initialize(dir)
     @entries = []
-    puts dir
-    puts `pwd`
+    @dir = dir
+
     Dir.glob("#{dir}/*.rb") { |f|
       puts f
       @entries << DatchFile.new(f, self)
@@ -44,10 +49,13 @@ class DatchParser
   end
 
   def write(file, &cb)
+    changes=[]
+    @entries.each { |e| changes << cb.call(e) }
+    tmp_body=File.new("#@dir/changes.erb").read
+    template = ERB.new tmp_body, nil, "%"
+    output = template.result(binding)
     File.open(file, 'w') { |f|
-      f.puts "header"
-      @entries.each { |e| f.puts cb.call(e) }
-      f.puts "footer"
+      f.puts output
     }
   end
 
