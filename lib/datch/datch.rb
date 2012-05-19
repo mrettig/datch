@@ -2,11 +2,27 @@ dir=ARGV.shift
 output=ARGV.shift
 
 class DatchFile
-  attr_reader :patch
+  attr_reader :patch, :name, :version
+  include Comparable
 
   def initialize(f, context)
     load f
+    parts = File.basename(f).split(".")
+    @versions = []
+    @name = []
+    parts.each { |p|
+      if p.match /\A[0-9]+\Z/
+        @versions << p.to_i
+      else
+        @name << p
+      end
+    }
     @patch = datch(context)
+  end
+
+  def <=>(other)
+    result = version <=>other.version
+    result != 0 ? result : name <=> other.name
   end
 end
 
@@ -20,6 +36,7 @@ class DatchParser
       @entries << DatchFile.new(f, self)
     }
     @entries.sort!
+    puts @entries.inspect
   end
 
   def write_change_sql(output)
