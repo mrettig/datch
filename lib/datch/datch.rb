@@ -8,13 +8,15 @@ class DatchFile
 
   def initialize(f, context)
     parts = File.basename(f).split(".")
-    @versions = []
+    @version = []
     @name = []
+    version_check=true
     parts.each { |p|
-      if p.match /\A[0-9]+\Z/
-        @versions << p.to_i
+      if version_check && p.match(/\A[0-9]+\Z/)
+        @version << p.to_i
       else
         @name << p
+        version_check=false
       end
     }
     @patch = DatchFile::load_file(f, context)
