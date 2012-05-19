@@ -1,4 +1,6 @@
 #header
 
-<% changes.each do |f| %><%= f %>
+<% changes.each do |f| %>
+    --<%= f.file.path %>
+    <%= f.to_s %>
 <% end %>

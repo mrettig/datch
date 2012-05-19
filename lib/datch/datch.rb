@@ -3,10 +3,11 @@ dir=ARGV.shift
 output=ARGV.shift
 
 class DatchFile
-  attr_reader :patch, :name, :version
+  attr_reader :patch, :name, :version, :path
   include Comparable
 
   def initialize(f, context)
+    @path = f
     parts = File.basename(f).split(".")
     @version = []
     @name = []
@@ -33,6 +34,20 @@ class DatchFile
   end
 end
 
+class DatchModel
+
+  attr_reader :sql, :file
+
+  def initialize(datch_file, sql)
+    @sql = sql
+    @file=datch_file
+  end
+
+  def to_s
+    @sql
+  end
+end
+
 class DatchParser
   def initialize(dir)
     @entries = []
@@ -50,7 +65,12 @@ class DatchParser
 
   def write(file, &cb)
     changes=[]
-    @entries.each { |e| changes << cb.call(e) }
+    @entries.each { |e|
+      sql = cb.call(e)
+      if sql
+        changes << DatchModel.new(e, sql)
+      end
+    }
     tmp_body=File.new("#@dir/changes.erb").read
     template = ERB.new tmp_body
     output = template.result(binding)
