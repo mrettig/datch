@@ -1,15 +1,7 @@
-/*
-Generated Changes
-*/
-
-WHENEVER SQLERROR EXIT SQL.SQLCODE ROLLBACK;
-WHENEVER OSERROR EXIT 2 ROLLBACK;
-
 <% changes.each do |f| %>
+<% if f.file.patch.change %>
 --<%= f.file.path %>
-<%= f.sql %>
+<%= f.file.patch.change %>
 <%= f.version_update_sql %>
 <% end %>
-
-COMMIT;
-EXIT;
+<% end %>

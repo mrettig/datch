@@ -1,6 +1,8 @@
 require 'erb'
 require 'yaml'
 
+module Datch
+
 class DatchFile
   attr_reader :patch, :path
   include Comparable
@@ -43,17 +45,17 @@ end
 
 class DatchModel
 
-  attr_reader :sql, :file, :version_update_sql
+  attr_reader :file, :version_update_sql
 
-  def initialize(datch_file, sql, version_update_sql)
-    @sql = sql
+  def initialize(datch_file, version_update_sql)
     @file=datch_file
     @version_update_sql=version_update_sql
   end
 
-  def to_s
-    @sql
+  def change
+    @datch_file.change
   end
+
 end
 
 class DatchParser
@@ -72,18 +74,15 @@ class DatchParser
   end
 
   def write_change_sql(output)
-    write(output+".changes.sql") { |e| e.patch.change }
+    write(output+".changes.sql", 'changes.erb')
   end
 
-  def write(file, &cb)
+  def write(file, template)
     changes=[]
-    @entries.each { |e|
-      sql = cb.call(e)
-      if sql
-        changes << DatchModel.new(e, sql, db.create_version_update_sql(e))
-      end
+    @entries.each {|e|
+      changes << DatchModel.new(e, db.create_version_update_sql(e))
     }
-    tmp_body=File.new("#@dir/changes.erb").read
+    tmp_body=File.new("#@dir/#{template}").read
     template = ERB.new tmp_body
     output = template.result(binding)
     File.open(file, 'w') { |f|
@@ -92,7 +91,9 @@ class DatchParser
   end
 
   def write_rollback_sql(output)
-    write(output+".rollback.sql") { |e| e.patch.rollback }
+    write(output+".rollback.sql", 'rollback.erb')
   end
+
+end
 
 end

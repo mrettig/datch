@@ -1,0 +1,6 @@
+<% changes.each do |f| %>
+<% if f.file.patch.rollback %>
+--<%= f.file.path %>
+<%= f.file.patch.rollback %>
+<% end %>
+<% end %>
