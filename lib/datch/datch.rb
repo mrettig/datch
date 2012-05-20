@@ -61,12 +61,12 @@ end
 
 class DatchParser
 
-  attr_reader :conf
+  attr_reader :db
 
-  def initialize(dir, yaml_conf)
+  def initialize(dir, db)
     @entries = []
     @dir = dir
-    @conf = yaml_conf
+    @db = db
 
     Dir.glob("#{dir}/*.rb") { |f|
       @entries << DatchFile.new(f, self)
