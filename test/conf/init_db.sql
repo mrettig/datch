@@ -1,0 +1,1 @@
+create table datch_version(version, file, host, user, timestamp);

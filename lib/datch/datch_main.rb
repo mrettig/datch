@@ -4,7 +4,7 @@ commands={}
 commands['init_db'] = lambda{
   load ARGV.shift
   db=configure
-  db.init
+  db.init_db
 }
 
 commands['diff'] = lambda {
