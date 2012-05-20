@@ -2,7 +2,10 @@
 class SqlLiteDb
   def init_db
     file = File.dirname(__FILE__) + "/init_db.sql"
-    exec("sqlite3 -bail datch.sqlite.db <#{file}")
+    stmt = "sqlite3 -bail datch.sqlite.db <#{file}"
+    unless system(stmt)
+      raise "init db failed: #{stmt}"
+    end
   end
 end
 
