@@ -3,7 +3,7 @@ dir=ARGV.shift
 output=ARGV.shift
 
 class DatchFile
-  attr_reader :patch, :name, :version, :path
+  attr_reader :patch, :path
   include Comparable
 
   def initialize(f, context)
@@ -21,6 +21,14 @@ class DatchFile
       end
     }
     @patch = DatchFile::load_file(f, context)
+  end
+
+  def name
+    @name.join('.')
+  end
+
+  def version
+    @version.join('.')
   end
 
   def self.load_file(f, context)
@@ -41,6 +49,10 @@ class DatchModel
   def initialize(datch_file, sql)
     @sql = sql
     @file=datch_file
+  end
+
+  def version_update_sql
+    "insert into datch_version(file,version) values('#{file.name}','#{file.version}');"
   end
 
   def to_s
