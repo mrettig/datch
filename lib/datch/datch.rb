@@ -1,6 +1,5 @@
 require 'erb'
-dir=ARGV.shift
-output=ARGV.shift
+require 'yaml'
 
 class DatchFile
   attr_reader :patch, :path
@@ -61,9 +60,13 @@ class DatchModel
 end
 
 class DatchParser
-  def initialize(dir)
+
+  attr_reader :conf
+
+  def initialize(dir, yaml_conf)
     @entries = []
     @dir = dir
+    @conf = yaml_conf
 
     Dir.glob("#{dir}/*.rb") { |f|
       @entries << DatchFile.new(f, self)
@@ -96,7 +99,3 @@ class DatchParser
   end
 
 end
-
-parser = DatchParser.new(dir)
-parser.write_change_sql(output)
-parser.write_rollback_sql(output)
