@@ -43,15 +43,12 @@ end
 
 class DatchModel
 
-  attr_reader :sql, :file
+  attr_reader :sql, :file, :version_update_sql
 
-  def initialize(datch_file, sql)
+  def initialize(datch_file, sql, version_update_sql)
     @sql = sql
     @file=datch_file
-  end
-
-  def version_update_sql
-    "insert into datch_version(file,version) values('#{file.name}','#{file.version}');"
+    @version_update_sql=version_update_sql
   end
 
   def to_s
@@ -83,7 +80,7 @@ class DatchParser
     @entries.each { |e|
       sql = cb.call(e)
       if sql
-        changes << DatchModel.new(e, sql)
+        changes << DatchModel.new(e, sql, db.create_version_update_sql(e))
       end
     }
     tmp_body=File.new("#@dir/changes.erb").read

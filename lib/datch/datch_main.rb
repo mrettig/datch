@@ -8,10 +8,10 @@ commands['init_db'] = lambda{
 }
 
 commands['diff'] = lambda {
-  dir=ARGV.shift
-  output=ARGV.shift
   load ARGV.shift
   db=configure
+  dir=ARGV.shift
+  output=ARGV.shift
   parser = DatchParser.new(dir, db)
   parser.write_change_sql(output)
   parser.write_rollback_sql(output)
