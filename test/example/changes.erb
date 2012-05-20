@@ -1,6 +1,14 @@
-#header
+/*
+Generated Changes
+*/
+
+WHENEVER SQLERROR EXIT SQL.SQLCODE ROLLBACK;
+WHENEVER OSERROR EXIT 2 ROLLBACK;
 
 <% changes.each do |f| %>
-    --<%= f.file.path %>
-    <%= f.to_s %>
+--<%= f.file.path %>
+<%= f.to_s %>
 <% end %>
+
+COMMIT;
+EXIT;
