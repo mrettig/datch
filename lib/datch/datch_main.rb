@@ -1,7 +1,5 @@
 require File.dirname(__FILE__) + "/datch.rb"
 
-command = ARGV.shift
-
 commands={}
 commands['init_db'] = lambda{
   load ARGV.shift
@@ -18,6 +16,13 @@ commands['diff'] = lambda {
   parser.write_change_sql(output)
   parser.write_rollback_sql(output)
 }
+
+if ARGV.size == 0
+  puts "Available commands: #{commands.keys.inspect}"
+  exit -1
+end
+
+command = ARGV.shift
 
 if commands.include? command
   commands[command].call
