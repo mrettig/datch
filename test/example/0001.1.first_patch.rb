@@ -2,10 +2,7 @@ require File.dirname(__FILE__) +"/../../lib/datch/sql_patch.rb"
 
 def datch(context)
   change=<<eod
-alter table one;
-add index table one;
-insert into table one values;
---other stuff;
+insert into person(first_name, last_name) values ('joe', 'smith');
 eod
   SqlPatch.new change
 end
