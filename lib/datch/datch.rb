@@ -11,6 +11,14 @@ class Key
     @version = version
   end
 
+  def hash
+    @name.hash + @version.hash
+  end
+
+  def eql?(other)
+    (self <=> other) == 0
+  end
+
   def name_str
     @name.join('.')
   end
@@ -20,7 +28,7 @@ class Key
   end
 
   def self.parse(name_str, version_str)
-    Key.new(name_str.split('.'), version_str.split('.'))
+    Key.new(name_str.split('.'), version_str.split('.').map{|s|s.to_i} )
   end
 
   def <=>(other)
@@ -109,6 +117,7 @@ class DatchParser
     tmp_body=File.new("#@dir/#{template}").read
     template = ERB.new tmp_body
     output = template.result(binding)
+    puts output
     File.open(file, 'w') { |f|
       f.write output
     }
