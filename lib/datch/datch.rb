@@ -79,11 +79,12 @@ end
 
 class DatchModel
 
-  attr_reader :file, :version_update_sql
+  attr_reader :file, :version_update_sql, :version_rollback_sql
 
-  def initialize(datch_file, version_update_sql)
+  def initialize(datch_file, version_update_sql, version_rollback_sql)
     @file=datch_file
     @version_update_sql=version_update_sql
+    @version_rollback_sql=version_rollback_sql
   end
 end
 
@@ -112,7 +113,7 @@ class DatchParser
   def write(file, template)
     changes=[]
     @entries.each {|e|
-      changes << DatchModel.new(e, db.create_version_update_sql(e))
+      changes << DatchModel.new(e, db.create_version_update_sql(e), db.create_version_rollback_sql(e))
     }
     tmp_body=File.new("#@dir/#{template}").read
     template = ERB.new tmp_body

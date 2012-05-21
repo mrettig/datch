@@ -58,12 +58,12 @@ eod
     end
 
     def create_version_update_sql(file)
-      <<eod
-insert into datch_version
-    (file,version, host, user, timestamp)
-values
-  ('#{file.name}',#{file.version}, '#{Socket.gethostname}', '#{ENV['USER']}', '#{DateTime.now.to_s}');
-eod
+      "insert into datch_version (file,version, host, user, timestamp) values ('#{file.name}',#{file.version}, '#{Socket.gethostname}', '#{ENV['USER']}', '#{DateTime.now.to_s}');"
     end
+
+    def create_version_rollback_sql(file)
+      "delete from datch_version where file='#{file.name}' and version=#{file.version};"
+    end
+
   end
 end
