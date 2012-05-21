@@ -97,8 +97,14 @@ class DatchParser
     @entries = []
     @dir = dir
     @db = db
+    all_versions=[]
     Dir.glob("#{dir}/*.rb") { |f|
       datch_file = DatchFile.new(f, self)
+
+      raise "duplicate version found #{datch_file.version}" if all_versions.include?(datch_file.version)
+
+      all_versions << datch_file.version
+
       if (max_version.nil? || datch_file.key < max_version) && !prior_entry_set.include?(datch_file.key)
         @entries << datch_file
         puts datch_file.key.inspect
