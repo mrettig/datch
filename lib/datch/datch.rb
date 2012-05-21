@@ -56,6 +56,7 @@ class DatchFile
       end
     }
     @patch = DatchFile::load_file(f, context)
+    raise "Invalid version #{version.inspect} from #{f}" unless version.size == 1
     @key= Key.new(name, version)
   end
 
