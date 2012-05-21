@@ -42,13 +42,15 @@ eod
           raise "query failed: #{stmt}"
         end
         all = File.readlines(file.path)
-        header = all.shift.strip.split('|')
-        version_idx = header.find_index('version')
-        file_idx = header.find_index('file')
-        all.each { |line|
-          parts = line.strip.split('|')
-          keys << Datch::Key.parse(parts[file_idx], parts[version_idx])
-        }
+        if all.size > 0
+          header = all.shift.strip.split('|')
+          version_idx = header.find_index('version')
+          file_idx = header.find_index('file')
+          all.each { |line|
+            parts = line.strip.split('|')
+            keys << Datch::Key.parse(parts[file_idx], parts[version_idx])
+          }
+        end
       ensure
         file.unlink
       end
@@ -60,7 +62,7 @@ eod
 insert into datch_version
     (file,version, host, user, timestamp)
 values
-  ('#{file.name}','#{file.version}', '#{Socket.gethostname}', '#{ENV['USER']}', '#{DateTime.now.to_s}');
+  ('#{file.name}',#{file.version}, '#{Socket.gethostname}', '#{ENV['USER']}', '#{DateTime.now.to_s}');
 eod
     end
   end

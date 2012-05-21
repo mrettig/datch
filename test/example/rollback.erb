@@ -1,4 +1,4 @@
-<% changes.each do |f| %>
+<% changes.reverse.each do |f| %>
 <% if f.file.patch.rollback %>
 --<%= f.file.path %>
 <%= f.file.patch.rollback %>
