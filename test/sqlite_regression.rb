@@ -9,7 +9,9 @@ begin
   db=Datch::SqlLiteDb.new(file.path)
   db.init_db
   version_dir = File.dirname(__FILE__) + '/example'
-  parser = Datch::DatchParser.new(version_dir, db)
+  prior_version_set = db.load_prior_versions
+  puts prior_version_set.inspect
+  parser = Datch::DatchParser.new(version_dir, db, prior_version_set)
   change_prefix=temp_dir +'/example'
   parser.write_change_sql(change_prefix)
   parser.write_rollback_sql(change_prefix)

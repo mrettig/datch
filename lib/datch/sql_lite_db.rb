@@ -2,6 +2,9 @@ module Datch
 
   require "socket"
   require 'date'
+  require 'tempfile'
+  require File.dirname(__FILE__) + "/datch.rb"
+  require 'set'
 
   class SqlLiteDb
 
@@ -11,7 +14,7 @@ module Datch
     end
 
     def self.default_init_sql
-      file = File.dirname(__FILE__) + "/init_sqlite_db.sql"
+      File.dirname(__FILE__) + "/init_sqlite_db.sql"
     end
 
     def init_db
@@ -19,6 +22,37 @@ module Datch
       unless system(stmt)
         raise "init db failed: #{stmt}"
       end
+    end
+
+    def load_prior_versions
+      file = Tempfile.new('datch.sqlite.query')
+      to_file=<<eod
+
+.headers ON
+.mode list
+.output #{file.path}
+
+select file, version from datch_version;
+
+eod
+      keys = Set.new
+      begin
+        stmt="sqlite3 -bail #@db <<EOF #{to_file} \nEOF"
+        unless system(stmt)
+          raise "query failed: #{stmt}"
+        end
+        all = File.readlines(file.path)
+        header = all.shift.strip.split('|')
+        version_idx = header.find_index('version')
+        file_idx = header.find_index('file')
+        all.each { |line|
+          parts = line.strip.split('|')
+          keys << Datch::Key.parse(parts[file_idx], parts[version_idx])
+        }
+      ensure
+        file.unlink
+      end
+      keys
     end
 
     def create_version_update_sql(file)

@@ -3,33 +3,60 @@ require 'yaml'
 
 module Datch
 
+class Key
+  include Comparable
+  attr_accessor :name, :version
+  def initialize(name, version)
+    @name = name
+    @version = version
+  end
+
+  def name_str
+    @name.join('.')
+  end
+
+  def version_str
+    @version.join('.')
+  end
+
+  def self.parse(name_str, version_str)
+    Key.new(name_str.split('.'), version_str.split('.'))
+  end
+
+  def <=>(other)
+    result = version <=>other.version
+    result != 0 ? result : name <=> other.name
+  end
+end
+
 class DatchFile
-  attr_reader :patch, :path
+  attr_reader :patch, :path , :key
   include Comparable
 
   def initialize(f, context)
     @path = f
     parts = File.basename(f).split(".")
-    @version = []
-    @name = []
+    version = []
+    name = []
     version_check=true
     parts.each { |p|
       if version_check && p.match(/\A[0-9]+\Z/)
-        @version << p.to_i
+        version << p.to_i
       else
-        @name << p
+        name << p
         version_check=false
       end
     }
     @patch = DatchFile::load_file(f, context)
+    @key= Key.new(name, version)
   end
 
   def name
-    @name.join('.')
+    @key.name_str
   end
 
   def version
-    @version.join('.')
+    @key.version_str
   end
 
   def self.load_file(f, context)
@@ -38,8 +65,7 @@ class DatchFile
   end
 
   def <=>(other)
-    result = version <=>other.version
-    result != 0 ? result : name <=> other.name
+    key <=> other.key
   end
 end
 
@@ -51,24 +77,22 @@ class DatchModel
     @file=datch_file
     @version_update_sql=version_update_sql
   end
-
-  def change
-    @datch_file.change
-  end
-
 end
 
 class DatchParser
 
   attr_reader :db
 
-  def initialize(dir, db)
+  def initialize(dir, db, prior_entry_set=[], max_version=nil)
     @entries = []
     @dir = dir
     @db = db
-
     Dir.glob("#{dir}/*.rb") { |f|
-      @entries << DatchFile.new(f, self)
+      datch_file = DatchFile.new(f, self)
+      if (max_version.nil? || datch_file.key < max_version) && !prior_entry_set.include?(datch_file.key)
+        @entries << datch_file
+        puts datch_file.key.inspect
+      end
     }
     @entries.sort!
   end
