@@ -20,37 +20,29 @@ module Datch
       end
     end
 
-    def load_prior_versions
+    def find_max_version
       file = Tempfile.new('datch.sqlite.query')
       to_file=<<eod
 
-.headers ON
 .mode list
 .output #{file.path}
 
-select file, version from datch_version;
+select max(version) from datch_version;
 
 eod
-      keys = Set.new
       begin
         stmt="sqlite3 -bail #@db <<EOF #{to_file} \nEOF"
         unless system(stmt)
           raise "query failed: #{stmt}"
         end
-        all = File.readlines(file.path)
+        all = File.read(file.path)
         if all.size > 0
-          header = all.shift.strip.split('|')
-          version_idx = header.find_index('version')
-          file_idx = header.find_index('file')
-          all.each { |line|
-            parts = line.strip.split('|')
-            keys << Datch::Key.parse(parts[file_idx], parts[version_idx])
-          }
+          return all.to_i
         end
       ensure
         file.unlink
       end
-      keys
+      0
     end
 
     def create_version_update_sql(file)

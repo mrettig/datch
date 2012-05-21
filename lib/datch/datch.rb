@@ -65,7 +65,7 @@ class DatchFile
   end
 
   def version
-    @key.version_str
+    @key.version_str.to_i
   end
 
   def self.load_file(f, context)
@@ -93,7 +93,7 @@ class DatchParser
 
   attr_reader :db
 
-  def initialize(dir, db, prior_entry_set=[], max_version=nil)
+  def initialize(dir, db, min_version, max_version=nil)
     @entries = []
     @dir = dir
     @db = db
@@ -105,7 +105,7 @@ class DatchParser
 
       all_versions << datch_file.version
 
-      if (max_version.nil? || datch_file.key < max_version) && !prior_entry_set.include?(datch_file.key)
+      if (max_version.nil? || datch_file.version < max_version) && datch_file.version > min_version
         @entries << datch_file
       end
     }

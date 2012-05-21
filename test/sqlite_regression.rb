@@ -9,8 +9,9 @@ begin
   db=Datch::Sqlite3Db.new(file.path)
   db.init_db
   version_dir = File.dirname(__FILE__) + '/example'
-  prior_version_set = db.load_prior_versions
-  parser = Datch::DatchParser.new(version_dir, db, prior_version_set)
+  max = db.find_max_version
+  puts max
+  parser = Datch::DatchParser.new(version_dir, db, max)
   change_prefix=temp_dir +'/example'
   parser.write_change_sql(change_prefix)
   parser.write_rollback_sql(change_prefix)
