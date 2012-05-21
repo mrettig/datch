@@ -13,7 +13,7 @@ module Datch
     end
 
     def init_db
-      init_sql="create table datch_version(version integer not null , file text not null, host text, user text, timestamp text, primary key(version, file));"
+      init_sql="create table datch_version(version integer not null , file text not null, host text, user text, timestamp text, primary key(version));"
       stmt = "sqlite3 -bail #@db <<EOF\n #{init_sql} \nEOF"
       unless system(stmt)
         raise "init db failed: #{stmt}"

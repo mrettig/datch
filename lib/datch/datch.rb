@@ -107,7 +107,6 @@ class DatchParser
 
       if (max_version.nil? || datch_file.key < max_version) && !prior_entry_set.include?(datch_file.key)
         @entries << datch_file
-        puts datch_file.key.inspect
       end
     }
     @entries.sort!
@@ -125,7 +124,6 @@ class DatchParser
     tmp_body=File.new("#@dir/#{template}").read
     template = ERB.new tmp_body
     output = template.result(binding)
-    puts output
     File.open(file, 'w') { |f|
       f.write output
     }
