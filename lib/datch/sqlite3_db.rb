@@ -6,19 +6,15 @@ module Datch
   require File.dirname(__FILE__) + "/datch.rb"
   require 'set'
 
-  class SqlLiteDb
+  class Sqlite3Db
 
-    def initialize(db_file='datch.sqlite.db', init_sql_file=SqlLiteDb::default_init_sql)
+    def initialize(db_file='datch.sqlite.db')
       @db=db_file
-      @init_db_sql = init_sql_file
-    end
-
-    def self.default_init_sql
-      File.dirname(__FILE__) + "/init_sqlite_db.sql"
     end
 
     def init_db
-      stmt = "sqlite3 -bail #@db <#@init_db_sql"
+      init_sql="create table datch_version(version integer not null , file text not null, host text, user text, timestamp text, primary key(version, file));"
+      stmt = "sqlite3 -bail #@db <<EOF\n #{init_sql} \nEOF"
       unless system(stmt)
         raise "init db failed: #{stmt}"
       end

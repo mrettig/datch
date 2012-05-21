@@ -1,4 +1,4 @@
-require File.dirname(__FILE__) + "/../lib/datch/sql_lite_db.rb"
+require File.dirname(__FILE__) + "/../lib/datch/sqlite3_db.rb"
 require File.dirname(__FILE__) + "/../lib/datch/datch.rb"
 
 require 'tempfile'
@@ -6,7 +6,7 @@ require 'tempfile'
 file = Tempfile.new('datch.sqlite.regression')
 temp_dir= Dir.mktmpdir
 begin
-  db=Datch::SqlLiteDb.new(file.path)
+  db=Datch::Sqlite3Db.new(file.path)
   db.init_db
   version_dir = File.dirname(__FILE__) + '/example'
   prior_version_set = db.load_prior_versions
