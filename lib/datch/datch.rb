@@ -19,16 +19,8 @@ class Key
     (self <=> other) == 0
   end
 
-  def name_str
-    @name.join('.')
-  end
-
-  def version_str
-    @version.join('.')
-  end
-
   def self.parse(name_str, version_str)
-    Key.new(name_str.split('.'), version_str.split('.').map{|s|s.to_i} )
+    Key.new(name_str, version_str.to_i)
   end
 
   def <=>(other)
@@ -44,28 +36,18 @@ class DatchFile
   def initialize(f, context)
     @path = f
     parts = File.basename(f).split(".")
-    version = []
-    name = []
-    version_check=true
-    parts.each { |p|
-      if version_check && p.match(/\A[0-9]+\Z/)
-        version << p.to_i
-      else
-        name << p
-        version_check=false
-      end
-    }
+    version = parts.shift.to_i
+    name = parts.join('.')
     @patch = DatchFile::load_file(f, context)
-    raise "Invalid version #{version.inspect} from #{f}" unless version.size == 1
     @key= Key.new(name, version)
   end
 
   def name
-    @key.name_str
+    @key.name
   end
 
   def version
-    @key.version_str.to_i
+    @key.version
   end
 
   def self.load_file(f, context)
@@ -105,7 +87,7 @@ class DatchParser
 
       all_versions << datch_file.version
 
-      if (max_version.nil? || datch_file.version < max_version) && datch_file.version > min_version
+      if (max_version.nil? || datch_file.version <= max_version) && datch_file.version > min_version
         @entries << datch_file
       end
     }
