@@ -55,7 +55,6 @@ eod
       begin
         exec_sql to_file
         all = File.read(file.path)
-        puts 'read file ' + all.inspect
         if all.strip.size > 0
           return all.strip.to_i
         end
