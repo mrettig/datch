@@ -5,25 +5,26 @@ require 'tempfile'
 
 def run(*max_versions)
   file = Tempfile.new('datch.sqlite.regression')
-  temp_dir= Dir.mktmpdir
-  change_prefix=temp_dir +'/example'
   version_dir = File.dirname(__FILE__) + '/changes'
-
+  temp_dirs = []
   begin
     db=Datch::Sqlite3Db.new(file.path)
     db.init_db
     max_versions.each { |m|
+      temp_dir= Dir.mktmpdir
+      temp_dirs << temp_dir
+      change_prefix=temp_dir +'/example'
       Datch::DatchParser.write_diff(version_dir, db, change_prefix, m)
-      unless system("sqlite3 -bail #{file.path} <#{change_prefix+".changes.sql"}")
-        raise "failed"
-      end
+      db.exec_script change_prefix+".changes.sql"
     }
-    unless system("sqlite3 -bail #{file.path} <#{change_prefix+".rollback.sql"}")
-      raise "failed"
-    end
+    temp_dirs.reverse.each{|d|
+      db.exec_script d+"/example.rollback.sql"
+    }
   ensure
     file.unlink # deletes the temp file
-    FileUtils.remove_entry_secure temp_dir
+    temp_dirs.each{|d|
+      FileUtils.remove_entry_secure d
+    }
   end
 end
 

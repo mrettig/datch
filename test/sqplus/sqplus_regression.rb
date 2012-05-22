@@ -17,7 +17,7 @@ def run(*max_versions)
       Datch::DatchParser.write_diff(version_dir, db, temp_dir+"/regression", m)
       db.exec_script(temp_dir+"/regression.changes.sql")
     }
-    temp_dirs.each {|d|
+    temp_dirs.reverse.each {|d|
       db.exec_script d + "/regression.rollback.sql"
     }
   ensure

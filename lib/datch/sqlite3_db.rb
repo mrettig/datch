@@ -22,6 +22,12 @@ module Datch
       end
     end
 
+    def exec_script(script_path)
+      unless system("sqlite3 -bail #@db <#{script_path}")
+        raise " #{script_path} failed"
+      end
+    end
+
     def find_max_version
       file = Tempfile.new('datch.sqlite.query')
       to_file=<<eod
