@@ -94,6 +94,13 @@ class DatchParser
     @entries.sort!
   end
 
+  def self.write_diff(version_dir, db, file_prefix, max_version=nil)
+    max = db.find_max_version
+    parser = Datch::DatchParser.new(version_dir, db, max, max_version)
+    parser.write_change_sql(file_prefix)
+    parser.write_rollback_sql(file_prefix)
+  end
+
   def write_change_sql(output)
     write(output+".changes.sql", 'changes.erb')
   end

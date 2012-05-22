@@ -13,10 +13,7 @@ def run(*max_versions)
     db=Datch::Sqlite3Db.new(file.path)
     db.init_db
     max_versions.each { |m|
-      max = db.find_max_version
-      parser = Datch::DatchParser.new(version_dir, db, max, m)
-      parser.write_change_sql(change_prefix)
-      parser.write_rollback_sql(change_prefix)
+      Datch::DatchParser.write_diff(version_dir, db, change_prefix, m)
       unless system("sqlite3 -bail #{file.path} <#{change_prefix+".changes.sql"}")
         raise "failed"
       end

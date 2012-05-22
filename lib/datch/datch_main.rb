@@ -12,9 +12,7 @@ commands['diff'] = lambda {
   db=configure
   dir=ARGV.shift
   output=ARGV.shift
-  parser = DatchParser.new(dir, db)
-  parser.write_change_sql(output)
-  parser.write_rollback_sql(output)
+  Datch::DatchParser.write_diff(dir, db, output)
 }
 
 if ARGV.size == 0
