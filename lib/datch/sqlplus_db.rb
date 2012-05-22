@@ -43,7 +43,6 @@ EOD
 
     def find_max_version
       file = Tempfile.new('datch.sqlplus.query')
-      puts `pwd`
       to_file=<<eod
 set HEADING OFF
 set pagesize 0
@@ -59,7 +58,7 @@ eod
           return all.strip.to_i
         end
       ensure
-        # file.unlink
+        file.unlink
       end
       0
     end
