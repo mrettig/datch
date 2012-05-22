@@ -9,6 +9,12 @@ Datch is based on creating simple database patch files in ruby. A single directo
  named with a version number, a descriptive name, and an .rb extension. Datch will use the version numbers to load, process, and create
  a change script based on the version numbers of the files. A database table in the target database tracks what changes have been applied.
 
+### Directory Example
+
+* 001.my_table.rb
+* 002.other_table.rb
+* changes.erb - ERB change template
+* rollback.erb = ERB rollback template
 
 ### Example Datch
 
@@ -25,4 +31,9 @@ end
 ### Running
 
 ##### $ ruby datch/datch_main.rb init_db my_db_conf.rb
+
+This will generate the database schema for storing version information.
+
 ##### $ ruby datch/datch_main.rb diff my_db_conf.rb changes_dir output_file_name
+
+This command generates a change and rollback script.
