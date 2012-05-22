@@ -1,5 +1,6 @@
 require 'erb'
 require 'yaml'
+require 'ostruct'
 
 module Datch
 
@@ -22,17 +23,6 @@ class DatchFile
 
   def <=>(other)
     version <=> other.version
-  end
-end
-
-class DatchModel
-
-  attr_reader :file, :version_update_sql, :version_rollback_sql
-
-  def initialize(datch_file, version_update_sql, version_rollback_sql)
-    @file=datch_file
-    @version_update_sql=version_update_sql
-    @version_rollback_sql=version_rollback_sql
   end
 end
 
@@ -73,7 +63,11 @@ class DatchParser
   def write(file, template)
     changes=[]
     @entries.each {|e|
-      changes << DatchModel.new(e, db.create_version_update_sql(e), db.create_version_rollback_sql(e))
+      model = OpenStruct.new
+      model.file=e
+      model.version_update_sql=db.create_version_update_sql(e)
+      model.version_rollback_sql=db.create_version_rollback_sql(e)
+      changes << model
     }
     tmp_body=File.new("#@dir/#{template}").read
     template = ERB.new tmp_body
