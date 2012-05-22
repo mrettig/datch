@@ -15,6 +15,24 @@ commands['diff'] = lambda {
   Datch::DatchParser.write_diff(dir, db, output)
 }
 
+commands['upgrade'] = lambda {
+  load ARGV.shift
+  db=configure
+  dir=ARGV.shift
+  output=ARGV.shift
+  Datch::DatchParser.write_diff(dir, db, output)
+  db.exec_script(output +".changes.sql")
+}
+
+commands['run'] = lambda {
+  load ARGV.shift
+  db=configure
+  while ARGV.size > 0
+    script=ARGV.shift
+    db.exec_script(script)
+  end
+}
+
 if ARGV.size == 0
   puts "Available commands: #{commands.keys.inspect}"
   exit -1
