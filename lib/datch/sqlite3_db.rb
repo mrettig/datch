@@ -4,7 +4,6 @@ module Datch
   require 'date'
   require 'tempfile'
   require File.dirname(__FILE__) + "/datch.rb"
-  require 'set'
 
   class Sqlite3Db
 
@@ -13,10 +12,13 @@ module Datch
     end
 
     def init_db
-      init_sql="create table datch_version(version integer not null , file text not null, host text, user text, timestamp text, primary key(version));"
-      stmt = "sqlite3 -bail #@db <<EOF\n #{init_sql} \nEOF"
+      exec_sql "create table datch_version(version integer not null , file text not null, host text, user text, timestamp text, primary key(version));"
+    end
+
+    def exec_sql(sql)
+      stmt="sqlite3 -bail #@db <<EOF\n #{sql} \nEOF"
       unless system(stmt)
-        raise "init db failed: #{stmt}"
+          raise "sql failed: #{stmt}"
       end
     end
 
@@ -26,15 +28,10 @@ module Datch
 
 .mode list
 .output #{file.path}
-
 select max(version) from datch_version;
-
 eod
       begin
-        stmt="sqlite3 -bail #@db <<EOF #{to_file} \nEOF"
-        unless system(stmt)
-          raise "query failed: #{stmt}"
-        end
+        exec_sql to_file
         all = File.read(file.path)
         if all.size > 0
           return all.to_i
