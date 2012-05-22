@@ -21,3 +21,8 @@ def datch(context)
   SqlPatch.new change, rollback
 end
 ```
+
+### Running
+
+##### $ ruby datch/datch_main.rb init_db my_db_conf.rb
+##### $ ruby datch/datch_main.rb diff my_db_conf.rb changes_dir output_file_name
