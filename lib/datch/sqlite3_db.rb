@@ -12,7 +12,7 @@ module Datch
     end
 
     def init_db
-      exec_sql "create table datch_version(version integer not null , file text not null, host text, user text, timestamp text, primary key(version));"
+      exec_sql "create table datch_version(version integer not null , file_name text not null, host text, user_name text, timestamp text, primary key(version));"
     end
 
     def exec_sql(sql)
@@ -43,11 +43,11 @@ eod
     end
 
     def create_version_update_sql(file)
-      "insert into datch_version (file,version, host, user, timestamp) values ('#{file.name}',#{file.version}, '#{Socket.gethostname}', '#{ENV['USER']}', '#{DateTime.now.to_s}');"
+      "insert into datch_version (file_name,version, host, user_name, timestamp) values ('#{file.name}',#{file.version}, '#{Socket.gethostname}', '#{ENV['USER']}', '#{DateTime.now.to_s}');"
     end
 
     def create_version_rollback_sql(file)
-      "delete from datch_version where file='#{file.name}' and version=#{file.version};"
+      "delete from datch_version where version=#{file.version};"
     end
 
   end

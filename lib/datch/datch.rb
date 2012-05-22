@@ -51,6 +51,7 @@ class DatchParser
 
   def self.write_diff(version_dir, db, file_prefix, max_version=nil)
     max = db.find_max_version
+    puts "current db version: #{max}"
     parser = Datch::DatchParser.new(version_dir, db, max, max_version)
     parser.write_change_sql(file_prefix)
     parser.write_rollback_sql(file_prefix)

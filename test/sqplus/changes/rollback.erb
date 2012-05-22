@@ -1,0 +1,13 @@
+SET AUTOCOMMIT OFF;
+
+WHENEVER SQLERROR EXIT SQL.SQLCODE ROLLBACK;
+WHENEVER OSERROR EXIT 2 ROLLBACK;
+
+<% changes.reverse.each do |f| %>
+<% if f.file.patch.rollback %>
+--<%= f.file.path %>
+<%= f.file.patch.rollback %>
+<%= f.version_rollback_sql %>
+<% end %><% end %>
+
+COMMIT;
