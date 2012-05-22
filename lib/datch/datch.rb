@@ -3,51 +3,16 @@ require 'yaml'
 
 module Datch
 
-class Key
-  include Comparable
-  attr_accessor :name, :version
-  def initialize(name, version)
-    @name = name
-    @version = version
-  end
-
-  def hash
-    @name.hash + @version.hash
-  end
-
-  def eql?(other)
-    (self <=> other) == 0
-  end
-
-  def self.parse(name_str, version_str)
-    Key.new(name_str, version_str.to_i)
-  end
-
-  def <=>(other)
-    result = version <=>other.version
-    result != 0 ? result : name <=> other.name
-  end
-end
-
 class DatchFile
-  attr_reader :patch, :path , :key
+  attr_reader :patch, :path , :name, :version
   include Comparable
 
   def initialize(f, context)
     @path = f
     parts = File.basename(f).split(".")
-    version = parts.shift.to_i
-    name = parts.join('.')
+    @version = parts.shift.to_i
+    @name = parts.join('.')
     @patch = DatchFile::load_file(f, context)
-    @key= Key.new(name, version)
-  end
-
-  def name
-    @key.name
-  end
-
-  def version
-    @key.version
   end
 
   def self.load_file(f, context)
@@ -56,7 +21,7 @@ class DatchFile
   end
 
   def <=>(other)
-    key <=> other.key
+    version <=> other.version
   end
 end
 
