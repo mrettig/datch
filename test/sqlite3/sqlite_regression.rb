@@ -1,5 +1,5 @@
-require File.dirname(__FILE__) + "/../lib/datch/sqlite3_db.rb"
-require File.dirname(__FILE__) + "/../lib/datch/datch.rb"
+require File.dirname(__FILE__) + "/../../lib/datch/sqlite3_db.rb"
+require File.dirname(__FILE__) + "/../../lib/datch/datch.rb"
 
 require 'tempfile'
 
@@ -7,7 +7,7 @@ def run(*max_versions)
   file = Tempfile.new('datch.sqlite.regression')
   temp_dir= Dir.mktmpdir
   change_prefix=temp_dir +'/example'
-  version_dir = File.dirname(__FILE__) + '/example'
+  version_dir = File.dirname(__FILE__) + '/changes'
 
   begin
     db=Datch::Sqlite3Db.new(file.path)
