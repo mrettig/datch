@@ -35,7 +35,7 @@ commands['upgrade'] = lambda {
     count = count +1
     id= output + count.to_s
     Datch::DatchParser.write_diff(dir, d, id)
-    d.exec_script(id +".changes.sql")
+    d.exec_script(id +"/changes.sql")
   }
 }
 
