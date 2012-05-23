@@ -54,9 +54,9 @@ commands['upgrade'] = lambda {
 commands['run'] = lambda {
   db=load_db ARGV.shift
   while ARGV.size > 0
+    script=ARGV.shift
     apply(db) { |d|
       puts d
-      script=ARGV.shift
       d.exec_script(script)
     }
   end
@@ -65,9 +65,9 @@ commands['run'] = lambda {
 commands['exec'] = lambda {
   db=load_db ARGV.shift
   while ARGV.size > 0
+    script=ARGV.shift
     apply(db) { |d|
       puts d
-      script=ARGV.shift
       d.exec_sql(script)
     }
   end
