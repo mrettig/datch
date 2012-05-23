@@ -2,13 +2,13 @@ require File.dirname(__FILE__) + "/datch.rb"
 
 def apply(db, &action)
   all = [*db]
-  all.each{|d| action.call(d)}
+  all.each { |d| action.call(d) }
 end
 
 def load_db(file)
   if File.directory? file
     result = []
-    Dir.glob("#{file}/**/*.rb").each{|d|
+    Dir.glob("#{file}/**/*.rb").each { |d|
       load d
       result << configure
     }
@@ -21,9 +21,9 @@ end
 
 
 commands={}
-commands['init_db'] = lambda{
+commands['init_db'] = lambda {
   db=load_db ARGV.shift
-  apply(db){|d| d.init_db}
+  apply(db) { |d| d.init_db }
 }
 
 commands['diff'] = lambda {
@@ -31,7 +31,7 @@ commands['diff'] = lambda {
   dir=ARGV.shift
   output=ARGV.shift
   count=0
-  apply(db){|d|
+  apply(db) { |d|
     count = count +1
     id= output + count.to_s
     Datch::DatchParser.write_diff(dir, d, id)
@@ -43,7 +43,7 @@ commands['upgrade'] = lambda {
   dir=ARGV.shift
   output=ARGV.shift
   count=0
-  apply(db){|d|
+  apply(db) { |d|
     count = count +1
     id= output + count.to_s
     Datch::DatchParser.write_diff(dir, d, id)
@@ -53,22 +53,24 @@ commands['upgrade'] = lambda {
 
 commands['run'] = lambda {
   db=load_db ARGV.shift
-  apply(db){|d|
-    while ARGV.size > 0
+  while ARGV.size > 0
+    apply(db) { |d|
+      puts d
       script=ARGV.shift
       d.exec_script(script)
-    end
-  }
+    }
+  end
 }
 
 commands['exec'] = lambda {
   db=load_db ARGV.shift
-  apply(db){|d|
-    while ARGV.size > 0
+  while ARGV.size > 0
+    apply(db) { |d|
+      puts d
       script=ARGV.shift
       d.exec_sql(script)
-    end
-  }
+    }
+  end
 }
 
 if ARGV.size == 0

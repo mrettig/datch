@@ -15,6 +15,10 @@ module Datch
       exec_sql "create table datch_version(schema_name text not null, version integer not null , file_name text not null, host text, user_name text, change_timestamp text, primary key(schema_name, version));"
     end
 
+    def to_s
+      @db
+    end
+
     def exec_sql(sql)
       stmt="sqlite3 -bail #@db <<EOF\n #{sql} \nEOF"
       unless system(stmt)
