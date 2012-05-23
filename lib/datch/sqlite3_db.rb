@@ -34,7 +34,7 @@ module Datch
 
 .mode list
 .output #{file.path}
-select max(version) from datch_version;
+select max(version) from datch_version where schema_name='#@db';
 eod
       begin
         exec_sql to_file

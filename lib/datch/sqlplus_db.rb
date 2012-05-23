@@ -14,8 +14,12 @@ module Datch
       @connect_id=connect_id
     end
 
+    def schema
+      @user
+    end
+
     def init_db
-      exec_sql "create table datch_version(version integer not null , file_name VARCHAR2(50) not null, host VARCHAR2(50), user_name VARCHAR2(50), timestamp TIMESTAMP, primary key(version));"
+      exec_sql "create table datch_version(schema_name varchar2(50) not null, version integer not null , file_name VARCHAR2(50) not null, host VARCHAR2(50), user_name VARCHAR2(50), change_timestamp TIMESTAMP, primary key(version, schema_name));"
     end
 
     def cleanup_db
@@ -48,7 +52,7 @@ set HEADING OFF
 set pagesize 0
 set trimspool on
 SPOOL #{file.path}
-select max(version) from datch_version;
+select max(version) from datch_version where schema_name='#{schema}';
 SPOOL OFF
 eod
       begin
@@ -64,11 +68,11 @@ eod
     end
 
     def create_version_update_sql(file)
-      "insert into datch_version (file_name,version, host, user_name, timestamp) values ('#{file.name}',#{file.version}, '#{Socket.gethostname}', '#{ENV['USER']}', sysdate);"
+      "insert into datch_version (schema_name, file_name,version, host, user_name, change_timestamp) values ('#{schema}', '#{file.name}',#{file.version}, '#{Socket.gethostname}', '#{ENV['USER']}', sysdate);"
     end
 
     def create_version_rollback_sql(file)
-      "delete from datch_version where version=#{file.version};"
+      "delete from datch_version where version=#{file.version} and schema_name='#{schema}';"
     end
 
 
