@@ -1,10 +1,15 @@
 require File.dirname(__FILE__) + "/datch.rb"
 
+def apply(db, &action)
+  all = [*db]
+  all.each{|d| action.call(d)}
+end
+
 commands={}
 commands['init_db'] = lambda{
   load ARGV.shift
   db=configure
-  db.init_db
+  apply(db){|d| d.init_db}
 }
 
 commands['diff'] = lambda {
@@ -12,7 +17,12 @@ commands['diff'] = lambda {
   db=configure
   dir=ARGV.shift
   output=ARGV.shift
-  Datch::DatchParser.write_diff(dir, db, output)
+  count=0
+  apply(db){|d|
+    count = count +1
+    id= output + count.to_s
+    Datch::DatchParser.write_diff(dir, d, id)
+  }
 }
 
 commands['upgrade'] = lambda {
@@ -20,8 +30,13 @@ commands['upgrade'] = lambda {
   db=configure
   dir=ARGV.shift
   output=ARGV.shift
-  Datch::DatchParser.write_diff(dir, db, output)
-  db.exec_script(output +".changes.sql")
+  count=0
+  apply(db){|d|
+    count = count +1
+    id= output + count.to_s
+    Datch::DatchParser.write_diff(dir, d, id)
+    d.exec_script(id +".changes.sql")
+  }
 }
 
 commands['run'] = lambda {
