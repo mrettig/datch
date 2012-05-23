@@ -5,16 +5,29 @@ def apply(db, &action)
   all.each{|d| action.call(d)}
 end
 
+def load_db(file)
+  if File.directory? file
+    result = []
+    Dir.glob("#{file}/**/*.rb").each{|d|
+      load d
+      result << configure
+    }
+    result.flatten
+  else
+    load file
+    configure
+  end
+end
+
+
 commands={}
 commands['init_db'] = lambda{
-  load ARGV.shift
-  db=configure
+  db=load_db ARGV.shift
   apply(db){|d| d.init_db}
 }
 
 commands['diff'] = lambda {
-  load ARGV.shift
-  db=configure
+  db = load_db ARGV.shift
   dir=ARGV.shift
   output=ARGV.shift
   count=0
@@ -26,8 +39,7 @@ commands['diff'] = lambda {
 }
 
 commands['upgrade'] = lambda {
-  load ARGV.shift
-  db=configure
+  db=load_db ARGV.shift
   dir=ARGV.shift
   output=ARGV.shift
   count=0
@@ -40,8 +52,7 @@ commands['upgrade'] = lambda {
 }
 
 commands['run'] = lambda {
-  load ARGV.shift
-  db=configure
+  db=load_db ARGV.shift
   while ARGV.size > 0
     script=ARGV.shift
     db.exec_script(script)
