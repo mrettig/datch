@@ -14,11 +14,11 @@ def run(*max_versions)
       puts "Starting run: #{m} from #{max_versions.inspect}"
       temp_dir= Dir.mktmpdir
       temp_dirs << temp_dir
-      Datch::DatchParser.write_diff(version_dir, db, temp_dir+"/regression", m)
-      db.exec_script(temp_dir+"/regression.changes.sql")
+      Datch::DatchParser.write_diff(version_dir, db, temp_dir, m)
+      db.exec_script(temp_dir+"/changes.sql")
     }
     temp_dirs.reverse.each {|d|
-      db.exec_script d + "/regression.rollback.sql"
+      db.exec_script d + "/rollback.sql"
     }
   ensure
     db.cleanup_db

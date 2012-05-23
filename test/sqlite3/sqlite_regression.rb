@@ -13,12 +13,11 @@ def run(*max_versions)
     max_versions.each { |m|
       temp_dir= Dir.mktmpdir
       temp_dirs << temp_dir
-      change_prefix=temp_dir +'/example'
-      Datch::DatchParser.write_diff(version_dir, db, change_prefix, m)
-      db.exec_script change_prefix+".changes.sql"
+      Datch::DatchParser.write_diff(version_dir, db, temp_dir, m)
+      db.exec_script temp_dir+"/changes.sql"
     }
     temp_dirs.reverse.each{|d|
-      db.exec_script d+"/example.rollback.sql"
+      db.exec_script d+"/rollback.sql"
     }
   ensure
     file.unlink # deletes the temp file

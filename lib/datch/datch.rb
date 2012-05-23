@@ -49,16 +49,17 @@ class DatchParser
     @entries.sort!
   end
 
-  def self.write_diff(version_dir, db, file_prefix, max_version=nil)
+  def self.write_diff(version_dir, db, output_dir, max_version=nil)
     max = db.find_max_version
     puts "current db version: #{max}"
     parser = Datch::DatchParser.new(version_dir, db, max, max_version)
-    parser.write_change_sql(file_prefix)
-    parser.write_rollback_sql(file_prefix)
+    parser.write_change_sql(output_dir)
+    parser.write_rollback_sql(output_dir)
   end
 
-  def write_change_sql(output)
-    write(output+".changes.sql", 'changes.erb')
+  def write_change_sql(output_dir)
+    FileUtils.mkdir_p output_dir
+    write(output_dir+"/changes.sql", 'changes.erb')
   end
 
   def write(file, template)
@@ -79,7 +80,7 @@ class DatchParser
   end
 
   def write_rollback_sql(output)
-    write(output+".rollback.sql", 'rollback.erb')
+    write(output+"/rollback.sql", 'rollback.erb')
   end
 
 end
