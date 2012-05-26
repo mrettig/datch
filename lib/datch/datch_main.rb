@@ -126,7 +126,7 @@ init_db.invoke = lambda { |opts|
   apply(db) { |d| d.init_db }
 }
 
-def apply_diff(cmd_options, &post_diff)
+def apply_diff(cmd_options, rollback, &post_diff)
   cmd_options.db_conf_path
   cmd_options.schema_changes_path
   cmd_options.optional_output_dir
@@ -140,23 +140,29 @@ def apply_diff(cmd_options, &post_diff)
     apply(db) { |d|
       count = count +1
       id= output + count.to_s
-      start = opts[:min_version].nil? ? d.find_max_version : opts[:min_version]
-      Datch::DatchParser.write_diff(dir, d, id, start, opts[:max_version])
+      if rollback
+        end_version = opts[:max_version].nil? ? d.find_max_version : opts[:max_version]
+        start = opts[:min_version]
+      else
+        end_version = opts[:max_version]
+        start = opts[:min_version].nil? ? d.find_max_version : opts[:min_version]
+      end
+      Datch::DatchParser.write_diff(dir, d, id, start, end_version)
       post_diff.call(d, id)
     }
   }
 end
 
 diff = CmdOptions.new 'diff', "Generates a change script from available patches"
-apply_diff(diff) { |db, directory| }
+apply_diff(diff, false) { |db, directory| }
 
 upgrade = CmdOptions.new 'upgrade', "Uses the version table to generate a set of changes and apply them to database(s)"
-apply_diff(upgrade) { |db, directory|
+apply_diff(upgrade, false) { |db, directory|
   db.exec_script(directory +"/changes.sql")
 }
 
 rollback = CmdOptions.new 'rollback', "Generates a rollback script and applies it to the database(s)"
-apply_diff(rollback) { |db, directory|
+apply_diff(rollback, true) { |db, directory|
   db.exec_script(directory +"/rollback.sql")
 }
 
