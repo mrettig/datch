@@ -59,7 +59,7 @@ class CmdOptions
   def optional_max_version
     @options[:max_version] = nil
     @option_targets << lambda{ | o|
-      o.on('-e', '--end MAX', Integer, 'Max version included (inclusive). Defaults to the max patch file. ') { |d|
+      o.on('-e', '--end MAX', Integer, 'Max version included (inclusive) for patch diff.') { |d|
         @options[:max_version] = d
       }
     }
@@ -68,7 +68,7 @@ class CmdOptions
   def optional_min_version
     @options[:min_version] = nil
     @option_targets << lambda{ | o|
-      o.on('-s', '--start MIN', Integer, 'Min version (exclusive). Defaults to the max version in the DB. ') { |d|
+      o.on('-s', '--start MIN', Integer, 'Min version (exclusive) for patch diff.') { |d|
         @options[:min_version] = d
       }
     }
