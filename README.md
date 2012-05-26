@@ -8,7 +8,7 @@ database scripting and patching made easy
 Datch provides a scriptable frontend to database command line tools.
 
 ```bash
-$ ruby lib/datch/datch_main.rb run conf/dev_dbs << EOF
+$ ruby lib/datch/datch_main.rb run conf/dev_dbs <<EOF
 select * from dual;
 EOF
 ```
