@@ -13,6 +13,10 @@ select * from dual;
 EOF
 ```
 
+```bash
+$ ruby lib/datch/datch_main.rb run conf/dev_dbs baseline/scripts/*.sql
+```
+
 ### Versioning
 
 Datch is based on creating simple database patch files in ruby. A single directory is used. The files within the directory are
