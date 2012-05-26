@@ -1,7 +1,17 @@
 datch
 =====
 
-database patching made easy
+database scripting and patching made easy
+
+### Scripting
+
+Datch provides a scriptable frontend to database command line tools.
+
+```bash
+$ ruby lib/datch_main.rb run conf/dev_dbs << EOF
+select * from dual;
+EOF
+```
 
 ### Versioning
 
