@@ -56,10 +56,8 @@ end
 
 ### Running
 
-##### $ ruby datch/datch_main.rb init_db my_db_conf.rb
+```bash
+$ ruby datch/datch_main.rb
+```
 
-This will generate the database schema for storing version information.
-
-##### $ ruby datch/datch_main.rb diff my_db_conf.rb changes_dir output_file_name
-
-This command generates a change and rollback script.
+This will display the available commands and options.
