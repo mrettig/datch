@@ -44,7 +44,7 @@ class CmdOptions
   end
 
   def files_or_input
-    @args << "[files or input]"
+    @files_or_input=true
   end
 
   def optional_output_dir
@@ -59,7 +59,7 @@ class CmdOptions
   def optional_max_version
     @options[:max_version] = nil
     @option_targets << lambda{ | o|
-      o.on('-e', '--end MAX', 'Max version included (inclusive). Defaults to the max patch file. ') { |d|
+      o.on('-e', '--end MAX', Integer, 'Max version included (inclusive). Defaults to the max patch file. ') { |d|
         @options[:max_version] = d
       }
     }
@@ -68,7 +68,7 @@ class CmdOptions
   def optional_min_version
     @options[:min_version] = nil
     @option_targets << lambda{ | o|
-      o.on('-s', '--start MIN', 'Min version (exclusive). Defaults to the max version in the DB. ') { |d|
+      o.on('-s', '--start MIN', Integer, 'Min version (exclusive). Defaults to the max version in the DB. ') { |d|
         @options[:min_version] = d
       }
     }
@@ -76,7 +76,11 @@ class CmdOptions
 
   def run_cmd
     opt_parser = OptionParser.new
-    opt_parser.banner = "Command Usage: #@name #{@args.join(' ')}"
+    msg = "Command Usage: #@name #{@args.join(' ')}"
+    if @files_or_input
+      msg += " [files or input]"
+    end
+    opt_parser.banner = msg
     opt_parser.separator ""
     opt_parser.separator @description
     opt_parser.separator ""
@@ -131,7 +135,7 @@ def apply_diff(cmd_options, &post_diff)
   cmd_options.invoke  = lambda { |opts|
     db = load_db ARGV.shift
     dir=ARGV.shift
-    output=options[:output]
+    output=opts[:output]
     count=0
     apply(db) { |d|
       count = count +1
