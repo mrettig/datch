@@ -50,8 +50,26 @@ class CmdOptions
   def optional_output_dir
     @options[:output] = "./"
     @option_targets << lambda{ | o|
-      o.on('-o', '--output DIR', 'Output Dir') { |d|
+      o.on('-o', '--output DIR', 'Output Dir. Defaults to current dir.') { |d|
         @options[:output] = d
+      }
+    }
+  end
+
+  def optional_max_version
+    @options[:max_version] = nil
+    @option_targets << lambda{ | o|
+      o.on('-e', '--end MAX', 'Max version included (inclusive). Defaults to the max patch file. ') { |d|
+        @options[:max_version] = d
+      }
+    }
+  end
+
+  def optional_min_version
+    @options[:min_version] = nil
+    @option_targets << lambda{ | o|
+      o.on('-s', '--start MIN', 'Min version (exclusive). Defaults to the max version in the DB. ') { |d|
+        @options[:min_version] = d
       }
     }
   end
@@ -104,37 +122,38 @@ init_db.invoke = lambda { |opts|
   apply(db) { |d| d.init_db }
 }
 
-diff = CmdOptions.new 'diff', "Uses the version table to generate a change script from available patches"
-diff.db_conf_path
-diff.schema_changes_path
-diff.optional_output_dir
-diff.invoke  = lambda { |opts|
-  db = load_db ARGV.shift
-  dir=ARGV.shift
-  output=options[:output]
-  count=0
-  apply(db) { |d|
-    count = count +1
-    id= output + count.to_s
-    Datch::DatchParser.write_diff(dir, d, id)
+def apply_diff(cmd_options, &post_diff)
+  cmd_options.db_conf_path
+  cmd_options.schema_changes_path
+  cmd_options.optional_output_dir
+  cmd_options.optional_min_version
+  cmd_options.optional_max_version
+  cmd_options.invoke  = lambda { |opts|
+    db = load_db ARGV.shift
+    dir=ARGV.shift
+    output=options[:output]
+    count=0
+    apply(db) { |d|
+      count = count +1
+      id= output + count.to_s
+      start = opts[:min_version].nil? ? d.find_max_version : opts[:min_version]
+      Datch::DatchParser.write_diff(dir, d, id, start, opts[:max_version])
+      post_diff.call(d, id)
+    }
   }
-}
+end
+
+diff = CmdOptions.new 'diff', "Generates a change script from available patches"
+apply_diff(diff) { |db, directory| }
 
 upgrade = CmdOptions.new 'upgrade', "Uses the version table to generate a set of changes and apply them to database(s)"
-upgrade.db_conf_path
-upgrade.schema_changes_path
-upgrade.optional_output_dir
-upgrade.invoke = lambda { |opts|
-  db=load_db ARGV.shift
-  dir=ARGV.shift
-  output=opts[:output]
-  count=0
-  apply(db) { |d|
-    count = count +1
-    id= output + count.to_s
-    Datch::DatchParser.write_diff(dir, d, id)
-    d.exec_script(id +"/changes.sql")
-  }
+apply_diff(upgrade) { |db, directory|
+  db.exec_script(directory +"/changes.sql")
+}
+
+rollback = CmdOptions.new 'rollback', "Generates a rollback script and applies it to the database(s)"
+apply_diff(rollback) { |db, directory|
+  db.exec_script(directory +"/rollback.sql")
 }
 
 run = CmdOptions.new 'run', "Run sql provided from file(s) or from input stream"

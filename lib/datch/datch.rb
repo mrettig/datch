@@ -49,10 +49,9 @@ class DatchParser
     @entries.sort!
   end
 
-  def self.write_diff(version_dir, db, output_dir, max_version=nil)
-    max = db.find_max_version
-    puts "current db version: #{max}"
-    parser = Datch::DatchParser.new(version_dir, db, max, max_version)
+  def self.write_diff(version_dir, db, output_dir, min_version=db.find_max_version, max_version=nil)
+    puts "diffing from : #{min_version}"
+    parser = Datch::DatchParser.new(version_dir, db, min_version, max_version)
     parser.write_change_sql(output_dir)
     parser.write_rollback_sql(output_dir)
   end
