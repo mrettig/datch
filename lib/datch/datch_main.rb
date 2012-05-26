@@ -53,24 +53,14 @@ commands['upgrade'] = lambda {
 
 commands['run'] = lambda {
   db=load_db ARGV.shift
-  while ARGV.size > 0
-    script=ARGV.shift
-    apply(db) { |d|
-      puts d
-      d.exec_script(script)
-    }
-  end
-}
-
-commands['exec'] = lambda {
-  db=load_db ARGV.shift
-  while ARGV.size > 0
-    script=ARGV.shift
-    apply(db) { |d|
-      puts d
-      d.exec_sql(script)
-    }
-  end
+  result = ""
+  ARGF.each_line { |l|
+    result += l + "\n"
+  }
+  apply(db) { |d|
+    puts d
+    d.exec_sql(result)
+  }
 }
 
 if ARGV.size == 0
