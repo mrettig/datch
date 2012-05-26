@@ -3,6 +3,18 @@ datch
 
 database scripting and patching made easy
 
+### Database Configuration
+Database configurations are created in ruby. The configuration can return a single database config or multiple. Scripting commands
+are designed to operate on any number of databases.
+
+```ruby
+require File.dirname(__FILE__) + "datch/sqlite3_db.rb"
+
+def configure
+    [Datch::Sqlite3Db.new('sqlite3.1.db'),Datch::Sqlite3Db.new('sqlite3.2.db')]
+end
+```
+
 ### Scripting
 
 Datch provides a scriptable frontend to database command line tools.
