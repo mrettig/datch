@@ -4,6 +4,7 @@ module Datch
   require 'date'
   require 'tempfile'
   require File.dirname(__FILE__) + "/datch.rb"
+  require 'set'
 
   class SqlplusDb
 
@@ -56,26 +57,28 @@ EOD
       end
     end
 
-    def find_max_version
+    def find_versions
       file = Tempfile.new('datch.sqlplus.query')
       to_file=<<eod
 set HEADING OFF
 set pagesize 0
 set trimspool on
 SPOOL #{file.path}
-select max(version) from datch_version where schema_name='#{schema}';
+select version from datch_version where schema_name='#{schema}';
 SPOOL OFF
 eod
+      set=SortedSet.new
       begin
         exec_sql to_file
-        all = File.read(file.path)
-        if all.strip.size > 0
-          return all.strip.to_i
-        end
+        File.readlines(file.path).each{ |line|
+          if line.strip.size > 0
+            set << line.strip.to_i
+          end
+        }
       ensure
         file.unlink
       end
-      0
+      set
     end
 
     def create_version_update_sql(file)
