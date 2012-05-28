@@ -137,7 +137,7 @@ end
         version_set = Datch::VersionSet.new db.find_versions, false, opts
         full_dir="#{output_dir}/#{db.file_id}"
         Datch::DatchParser.write_diff(version_dir, db, full_dir, version_set)
-        db.exec_script "/#{full_dir}/changes.sql"
+        db.exec_script "#{full_dir}/changes.sql"
       }
     end
 
