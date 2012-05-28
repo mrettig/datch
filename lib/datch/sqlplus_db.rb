@@ -7,11 +7,18 @@ module Datch
 
   class SqlplusDb
 
-
     def initialize(user, password, connect_id)
       @user=user
       @password=password
       @connect_id=connect_id
+    end
+
+    def file_id
+      full= "#{@user}_#{connect_id}"
+      full.gsub! '/', '_'
+      full.gsub! '\\', '_'
+      full.gsub! ':', '_'
+      full
     end
 
     def schema
