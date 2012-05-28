@@ -4,11 +4,16 @@ module Datch
   require 'date'
   require 'tempfile'
   require File.dirname(__FILE__) + "/datch.rb"
+  require 'set'
 
   class Sqlite3Db
 
     def initialize(db_file='datch.sqlite.db')
       @db=File.expand_path(db_file)
+    end
+
+    def file_id
+      @db
     end
 
     def init_db
@@ -32,24 +37,27 @@ module Datch
       end
     end
 
-    def find_max_version
+    def find_versions
       file = Tempfile.new('datch.sqlite.query')
       to_file=<<eod
 
 .mode list
 .output #{file.path}
-select max(version) from datch_version where schema_name='#@db';
+select version from datch_version where schema_name='#@db';
 eod
+      result = SortedSet.new
       begin
         exec_sql to_file
-        all = File.read(file.path)
-        if all.size > 0
-          return all.to_i
-        end
+        File.readlines(file.path).each {|line|
+          trimmed = line.strip
+          if trimmed.size > 0
+             result << trimmed.to_i
+          end
+        }
       ensure
         file.unlink
       end
-      0
+      result
     end
 
     def create_version_update_sql(file)

@@ -1,11 +1,6 @@
 require File.dirname(__FILE__) + "/datch.rb"
 require 'optparse'
 
-def apply(db, &action)
-  all = [*db]
-  all.each { |d| action.call(d) }
-end
-
 def load_db(file)
   if File.directory? file
     result = []
@@ -13,10 +8,10 @@ def load_db(file)
       load d
       result << configure
     }
-    result.flatten
+    Datch::DbArray.new(result.flatten)
   else
     load file
-    configure
+    Datch::DbArray.new(configure)
   end
 end
 
@@ -123,10 +118,10 @@ init_db=CmdOptions.new("init_db", "Initialize Database(s) with datch version tab
 init_db.db_conf_path
 init_db.invoke = lambda { |opts|
   db=load_db ARGV.shift
-  apply(db) { |d| d.init_db }
+  db.init_db
 }
 
-def apply_diff(cmd_options, rollback, &post_diff)
+def apply_diff(cmd_options, &post_diff)
   cmd_options.db_conf_path
   cmd_options.schema_changes_path
   cmd_options.optional_output_dir
@@ -136,34 +131,23 @@ def apply_diff(cmd_options, rollback, &post_diff)
     db = load_db ARGV.shift
     dir=ARGV.shift
     output=opts[:output]
-    count=0
-    apply(db) { |d|
-      count = count +1
-      id= output + count.to_s
-      if rollback
-        end_version = opts[:max_version].nil? ? d.find_max_version : opts[:max_version]
-        start = opts[:min_version]
-      else
-        end_version = opts[:max_version]
-        start = opts[:min_version].nil? ? d.find_max_version : opts[:min_version]
-      end
-      Datch::DatchParser.write_diff(dir, d, id, start, end_version)
-      post_diff.call(d, id)
-    }
+    post_diff.call(db, dir, output, opts)
   }
 end
 
 diff = CmdOptions.new 'diff', "Generates a change script from available patches"
-apply_diff(diff, false) { |db, directory| }
+apply_diff(diff) { |db, version_dir, output_dir, opts|
+db.diff version_dir, output_dir, opts
+}
 
 upgrade = CmdOptions.new 'upgrade', "Uses the version table to generate a set of changes and apply them to database(s)"
-apply_diff(upgrade, false) { |db, directory|
-  db.exec_script(directory +"/changes.sql")
+apply_diff(upgrade) { |db, version_dir, output_dir, opts|
+  db.upgrade version_dir, output_dir, opts
 }
 
 rollback = CmdOptions.new 'rollback', "Generates a rollback script and applies it to the database(s)"
-apply_diff(rollback, true) { |db, directory|
-  db.exec_script(directory +"/rollback.sql")
+apply_diff(rollback) { |db, version_dir, output_dir, opts|
+  db.rollback version_dir, output_dir, opts
 }
 
 run = CmdOptions.new 'run', "Run sql provided from file(s) or from input stream"
@@ -175,10 +159,7 @@ run.invoke = lambda { |opts|
   ARGF.each_line { |l|
     result += l + "\n"
   }
-  apply(db) { |d|
-    puts d
-    d.exec_sql(result)
-  }
+  db.exec_sql result
 }
 
 CmdOptions.parse

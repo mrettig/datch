@@ -4,6 +4,30 @@ require 'ostruct'
 
 module Datch
 
+class VersionSet
+  def initialize(set, rollback, opts={})
+    @set = set
+    @max = opts[:max_version]
+    @min = opts[:min_version]
+    @rollback=rollback
+  end
+
+  def valid?(datch_file)
+    v = datch_file.version
+    if @max && v > @max
+      false
+    elsif @min && v <= @min
+      false
+    else
+      if @rollback
+        @set.include? v
+      else
+        !@set.include? v
+      end
+    end
+  end
+end
+
 class DatchFile
   attr_reader :patch, :path , :name, :version
   include Comparable
@@ -30,7 +54,7 @@ class DatchParser
 
   attr_reader :db
 
-  def initialize(dir, db, min_version, max_version=nil)
+  def initialize(dir, db, diff_strategy)
     @entries = []
     @dir = dir
     @db = db
@@ -42,17 +66,16 @@ class DatchParser
 
       all_versions << datch_file.version
 
-      if (max_version.nil? || datch_file.version <= max_version) && datch_file.version > min_version
+      if diff_strategy.valid? datch_file
         @entries << datch_file
+        puts "valid #{datch_file.name}"
       end
     }
     @entries.sort!
   end
 
-  def self.write_diff(version_dir, db, output_dir, min_version=db.find_max_version, max_version=nil)
-    max_str = max_version.nil? ? 'max' : max_version
-    puts "#{db} diffing from : #{min_version} to: #{max_str}"
-    parser = Datch::DatchParser.new(version_dir, db, min_version, max_version)
+  def self.write_diff(version_dir, db, output_dir, diff_strategy)
+    parser = Datch::DatchParser.new(version_dir, db, diff_strategy)
     parser.write_change_sql(output_dir)
     parser.write_rollback_sql(output_dir)
   end
@@ -84,5 +107,48 @@ class DatchParser
   end
 
 end
+
+  class DbArray
+    def initialize(dbs)
+      @dbs = [*dbs]
+    end
+
+    def init_db
+      @dbs.each { |d| d.init_db}
+    end
+
+    def exec_sql(sql)
+      @dbs.each { |d|
+        puts d
+        d.exec_sql(sql)
+      }
+    end
+
+    def diff(version_dir, output_dir, opts={})
+    @dbs.each{ |db|
+      version_set = Datch::VersionSet.new db.find_versions, false, opts
+      full_dir="#{output_dir}/#{db.file_id}"
+      Datch::DatchParser.write_diff(version_dir, db, full_dir, version_set)
+    }
+    end
+
+    def upgrade(version_dir, output_dir, opts={})
+      @dbs.each{ |db|
+        version_set = Datch::VersionSet.new db.find_versions, false, opts
+        full_dir="#{output_dir}/#{db.file_id}"
+        Datch::DatchParser.write_diff(version_dir, db, full_dir, version_set)
+        db.exec_script "/#{full_dir}/changes.sql"
+      }
+    end
+
+    def rollback(version_dir, output_dir, opts={})
+      @dbs.each{ |db|
+        version_set = Datch::VersionSet.new db.find_versions, true, opts
+        full_dir="#{output_dir}/#{db.file_id}"
+        Datch::DatchParser.write_diff(version_dir, db, full_dir, version_set)
+        db.exec_script "/#{full_dir}/rollback.sql"
+      }
+    end
+  end
 
 end
