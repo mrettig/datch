@@ -13,8 +13,7 @@ def run(*max_versions)
     max_versions.each { |m|
       temp_dir= Dir.mktmpdir
       temp_dirs << temp_dir
-      version_set = Datch::VersionSet.new db.find_versions, false
-      version_set.max_version m
+      version_set = Datch::VersionSet.new db.find_versions, false, :max_version=>m
       Datch::DatchParser.write_diff(version_dir, db, temp_dir, version_set)
       db.exec_script temp_dir+"/changes.sql"
     }

@@ -14,7 +14,8 @@ def run(*max_versions)
       puts "Starting run: #{m} from #{max_versions.inspect}"
       temp_dir= Dir.mktmpdir
       temp_dirs << temp_dir
-      Datch::DatchParser.write_diff(version_dir, db, temp_dir, m)
+      version_set = Datch::VersionSet.new db.find_versions, false, :max_version=>m
+      Datch::DatchParser.write_diff(version_dir, db, temp_dir, version_set)
       db.exec_script(temp_dir+"/changes.sql")
     }
     temp_dirs.reverse.each {|d|
