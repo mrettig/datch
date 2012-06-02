@@ -24,4 +24,14 @@ class Sqlite3Test < Test::Unit::TestCase
     @db.upgrade @version_dir , @temp_dir
     @db.rollback @version_dir , @temp_dir
   end
+
+  def test_upgrade_one_at_a_time
+    change_dir = Dir.glob(File.dirname(__FILE__) + "/changes/**.rb").sort
+    change_dir.each { |e|
+      @db.upgrade e, @temp_dir
+    }
+    change_dir.reverse.each{ |e|
+      @db.rollback e, @temp_dir
+    }
+  end
 end

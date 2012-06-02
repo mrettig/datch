@@ -56,21 +56,30 @@ class DatchParser
 
   def initialize(dir, db, diff_strategy)
     @entries = []
-    @dir = dir
     @db = db
-    all_versions=[]
-    Dir.glob("#{dir}/*.rb") { |f|
-      datch_file = DatchFile.new(f, self)
+    if File.directory? dir
+      all_versions=[]
+      @dir = dir
+      Dir.glob("#{dir}/*.rb") { |f|
+        datch_file = DatchFile.new(f, self)
 
-      raise "duplicate version found #{datch_file.version}" if all_versions.include?(datch_file.version)
+        raise "duplicate version found #{datch_file.version}" if all_versions.include?(datch_file.version)
 
-      all_versions << datch_file.version
+        all_versions << datch_file.version
 
+        if diff_strategy.valid? datch_file
+          @entries << datch_file
+          puts "valid #{datch_file.name}"
+        end
+      }
+    else
+      @dir = File.dirname dir
+      datch_file = DatchFile.new(dir, self)
       if diff_strategy.valid? datch_file
         @entries << datch_file
         puts "valid #{datch_file.name}"
       end
-    }
+    end
     @entries.sort!
   end
 
