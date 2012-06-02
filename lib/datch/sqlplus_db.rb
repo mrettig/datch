@@ -30,6 +30,10 @@ module Datch
       "#@user@#@connect_id"
     end
 
+    def template_path(name)
+      File.dirname(__FILE__) +"/sqlplus.#{name}.erb"
+    end
+
     def init_db
       exec_sql "create table datch_version(schema_name varchar2(50) not null, version integer not null , file_name VARCHAR2(50) not null, host VARCHAR2(50), user_name VARCHAR2(50), change_timestamp TIMESTAMP, primary key(version, schema_name));"
     end

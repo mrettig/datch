@@ -91,7 +91,7 @@ class DatchParser
 
   def write_change_sql(output_dir)
     FileUtils.mkdir_p output_dir
-    write(output_dir+"/changes.sql", 'changes.erb')
+    write(output_dir+"/changes.sql", 'changes')
   end
 
   def write(file, template)
@@ -103,7 +103,7 @@ class DatchParser
       model.version_rollback_sql=db.create_version_rollback_sql(e)
       changes << model
     }
-    tmp_body=File.new("#@dir/#{template}").read
+    tmp_body=File.new(@db.template_path(template)).read
     template = ERB.new tmp_body
     output = template.result(binding)
     File.open(file, 'w') { |f|
@@ -112,7 +112,7 @@ class DatchParser
   end
 
   def write_rollback_sql(output)
-    write(output+"/rollback.sql", 'rollback.erb')
+    write(output+"/rollback.sql", 'rollback')
   end
 
 end
