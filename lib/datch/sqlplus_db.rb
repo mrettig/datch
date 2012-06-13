@@ -15,7 +15,7 @@ module Datch
     end
 
     def file_id
-      full= "#@user_#@connect_id"
+      full= "#{@user}_#@connect_id"
       full.gsub! '/', '_'
       full.gsub! '\\', '_'
       full.gsub! ':', '_'
