@@ -61,7 +61,7 @@ class DatchParser
       all_versions=[]
       @dir = dir
       Dir.glob("#{dir}/*.rb") { |f|
-        datch_file = DatchFile.new(f, self)
+        datch_file = DatchFile.new(f, db)
 
         raise "duplicate version found #{datch_file.version}" if all_versions.include?(datch_file.version)
 
