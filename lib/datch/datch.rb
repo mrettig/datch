@@ -155,7 +155,7 @@ end
         version_set = Datch::VersionSet.new db.find_versions, true, opts
         full_dir="#{output_dir}/#{db.file_id}"
         Datch::DatchParser.write_diff(version_dir, db, full_dir, version_set)
-        db.exec_script "/#{full_dir}/rollback.sql"
+        db.exec_script "#{full_dir}/rollback.sql"
       }
     end
   end
