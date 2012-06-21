@@ -74,7 +74,7 @@ class DatchParser
       }
     else
       @dir = File.dirname dir
-      datch_file = DatchFile.new(dir, self)
+      datch_file = DatchFile.new(dir, db)
       if diff_strategy.valid? datch_file
         @entries << datch_file
         puts "valid #{datch_file.name}"
