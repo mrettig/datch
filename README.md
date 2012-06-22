@@ -20,12 +20,6 @@ end
 Datch provides a scriptable frontend to database command line tools.
 
 ```bash
-$ ruby datch/datch_main.rb run conf/dev_dbs <<EOF
-select * from dual;
-EOF
-```
-
-```bash
 $ ruby datch/datch_main.rb run conf/dev_dbs baseline/scripts/*.sql
 ```
 
