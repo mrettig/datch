@@ -133,6 +133,13 @@ end
       }
     end
 
+    def exec_script(script)
+      @dbs.each { |d|
+        puts d
+        d.exec_script(script)
+      }
+    end
+
     def diff(version_dir, output_dir, opts={})
     @dbs.each{ |db|
       version_set = Datch::VersionSet.new db.find_versions, false, opts

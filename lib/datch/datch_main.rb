@@ -155,11 +155,9 @@ run.db_conf_path
 run.files_or_input
 run.invoke = lambda { |opts|
   db=load_db ARGV.shift
-  result = ""
-  ARGF.each_line { |l|
-    result += l + "\n"
+  ARGV.each { |a|
+    db.exec_script a
   }
-  db.exec_sql result
 }
 
 CmdOptions.parse
