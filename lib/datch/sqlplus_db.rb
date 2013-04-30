@@ -61,6 +61,10 @@ EOD
       end
     end
 
+    def valid?(datch_file)
+      true
+    end
+
     def find_versions
       file = Tempfile.new('datch.sqlplus.query')
       to_file=<<eod

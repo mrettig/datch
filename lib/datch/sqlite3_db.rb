@@ -41,6 +41,10 @@ module Datch
       end
     end
 
+    def valid?(datch_file)
+      true
+    end
+
     def find_versions
       file = Tempfile.new('datch.sqlite.query')
       to_file=<<eod

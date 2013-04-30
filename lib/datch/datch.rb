@@ -67,7 +67,7 @@ class DatchParser
 
         all_versions << datch_file.version
 
-        if diff_strategy.valid? datch_file
+        if diff_strategy.valid?(datch_file) && db.valid?(datch_file)
           @entries << datch_file
           puts "valid #{datch_file.name}"
         end
@@ -75,7 +75,7 @@ class DatchParser
     else
       @dir = File.dirname dir
       datch_file = DatchFile.new(dir, db)
-      if diff_strategy.valid? datch_file
+      if diff_strategy.valid?(datch_file) && db.valid?(datch_file)
         @entries << datch_file
         puts "valid #{datch_file.name}"
       end
